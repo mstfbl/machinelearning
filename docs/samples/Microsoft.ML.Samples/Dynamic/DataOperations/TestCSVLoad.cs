@@ -61,7 +61,7 @@ namespace Samples.Dynamic.DataOperations
         public string ImagePath { get; set; }
 
         [LoadColumn(9)]
-        public Boolean IsFkAdvantagedProduct { get; set; }
+        public string IsFkAdvantagedProduct { get; set; }
 
         [LoadColumn(10)]
         public string Description { get; set; }

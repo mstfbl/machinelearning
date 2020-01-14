@@ -20,8 +20,6 @@ namespace Samples.Dynamic.DataOperations
             IEnumerable<SaleData> housingDataEnumerable =
                 mlContext.Data.CreateEnumerable<SaleData>(data, reuseRowObject: true);
 
-            DataDebuggerPreview preview = data.Preview();
-
             // Iterate over each row
             foreach (SaleData row in housingDataEnumerable)
             {
@@ -57,25 +55,28 @@ namespace Samples.Dynamic.DataOperations
         [LoadColumn(7)]
         public string DiscountedPrice { get; set; }
 
-        [LoadColumn(8)]
-        public string ImagePath { get; set; }
+        [LoadColumn(8, 14)]
+        [VectorType(7)]
+        public string[] ImagePath { get; set; }
 
-        [LoadColumn(9)]
-        public string IsFkAdvantagedProduct { get; set; }
+        [LoadColumn(15)]
+        public bool IsFkAdvantagedProduct { get; set; }
 
-        [LoadColumn(10)]
-        public string Description { get; set; }
+        [LoadColumn(16, 26)]
+        [VectorType(11)]
+        public string[] Description { get; set; }
 
-        [LoadColumn(11)]
+        [LoadColumn(27)]
         public string ProductRating { get; set; }
 
-        [LoadColumn(12)]
+        [LoadColumn(28)]
         public string OverallRating { get; set; }
 
-        [LoadColumn(13)]
+        [LoadColumn(29)]
         public string Brand { get; set; }
 
-        [LoadColumn(14)]
-        public string Specifications { get; set; }
+        [LoadColumn(30, 49)]
+        [VectorType(20)]
+        public string[] Specifications { get; set; }
     }
 }

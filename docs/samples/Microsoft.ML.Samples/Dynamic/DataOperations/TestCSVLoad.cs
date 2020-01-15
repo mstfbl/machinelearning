@@ -17,7 +17,7 @@ namespace Samples.Dynamic.DataOperations
             IDataView data = mlContext.Data.LoadFromTextFile<SaleData>("../../../../flipkart_com-ecommerce_sample.csv", separatorChar: ',', hasHeader: true);
 
             // Create an IEnumerable of SaleData objects from IDataView
-            IEnumerable<SaleData> housingDataEnumerable =
+            /*IEnumerable<SaleData> housingDataEnumerable =
                 mlContext.Data.CreateEnumerable<SaleData>(data, reuseRowObject: true);
 
             // Iterate over each row
@@ -25,8 +25,12 @@ namespace Samples.Dynamic.DataOperations
             {
                 // Do something (print out Size property) with current Housing Data object being evaluated
                 Console.WriteLine(row.ToString());
-            }
-        }
+            }*/
+
+			DataDebuggerPreview preview = data.Preview();
+			Console.WriteLine("done");
+
+		}
     }
 
     public class SaleData
@@ -43,39 +47,40 @@ namespace Samples.Dynamic.DataOperations
         [LoadColumn(3)]
         public string Name { get; set; }
 
-        [LoadColumn(4)]
-        public string CategoryTree { get; set; }
+        [LoadColumn(4,14)]
+		[VectorType(11)]
+		public string CategoryTree { get; set; }
 
-        [LoadColumn(5)]
+        [LoadColumn(15)]
         public string Pid { get; set; }
 
-        [LoadColumn(6)]
+        [LoadColumn(16)]
         public string RetailPrice { get; set; }
 
-        [LoadColumn(7)]
+        [LoadColumn(17)]
         public string DiscountedPrice { get; set; }
 
-        [LoadColumn(8, 14)]
+        [LoadColumn(18, 24)]
         [VectorType(7)]
         public string[] ImagePath { get; set; }
 
-        [LoadColumn(15)]
-        public bool IsFkAdvantagedProduct { get; set; }
+        [LoadColumn(25)]
+        public string IsFkAdvantagedProduct { get; set; }
 
-        [LoadColumn(16, 26)]
+        [LoadColumn(26, 36)]
         [VectorType(11)]
         public string[] Description { get; set; }
 
-        [LoadColumn(27)]
+        [LoadColumn(37)]
         public string ProductRating { get; set; }
 
-        [LoadColumn(28)]
+        [LoadColumn(38)]
         public string OverallRating { get; set; }
 
-        [LoadColumn(29)]
+        [LoadColumn(39)]
         public string Brand { get; set; }
 
-        [LoadColumn(30, 49)]
+        [LoadColumn(40, 59)]
         [VectorType(20)]
         public string[] Specifications { get; set; }
     }

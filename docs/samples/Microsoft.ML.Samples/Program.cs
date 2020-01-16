@@ -25,7 +25,7 @@ namespace Microsoft.ML.Samples
             }
 
             Console.WriteLine("Number of samples that ran without any exception: " + samples);*/
-            TestCSVLoad.Example();
+            TestCSVLoad2.Example();
         }
     }
 }

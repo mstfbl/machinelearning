@@ -1,0 +1,4 @@
+id, name, price, isSoldOut
+4401, bear, 70.70, False
+4402, coke, 5.99, False
+4403, laptop, 1999.99, True

@@ -48,15 +48,13 @@ namespace Microsoft.ML.RunTests
             public override bool NoComparisons { get { return true; } }
 
             public RunContext(TestCommandBase test, Cmd cmd, PredictorAndArgs predictor, TestDataset dataset,
-                string[] extraArgs = null, string extraTag = "",
-                bool expectFailure = false, OutputPath modelOverride = null, bool summary = false, bool saveAsIni = false)
+                string extraTag = "", bool expectFailure = false, OutputPath modelOverride = null, bool summary = false, bool saveAsIni = false)
                 : base(test, predictor.Trainer.Kind, GetNamePrefix(cmd.ToString(), predictor, dataset, extraTag), predictor.BaselineProgress)
             {
                 Command = cmd;
                 Predictor = predictor;
                 Dataset = dataset;
 
-                ExtraArgs = extraArgs;
                 ExtraTag = extraTag;
 
                 ExpectedToFail = expectFailure;
@@ -340,14 +338,14 @@ namespace Microsoft.ML.RunTests
         /// </summary>
         protected void RunAllTests(
             IList<PredictorAndArgs> predictors, IList<TestDataset> datasets,
-            string[] extraSettings = null, string extraTag = "", bool summary = false,
-            int digitsOfPrecision = DigitsOfPrecision, NumberParseOption parseOption = NumberParseOption.Default)
+            string extraTag = "", bool summary = false, int digitsOfPrecision = DigitsOfPrecision, 
+            NumberParseOption parseOption = NumberParseOption.Default)
         {
             Contracts.Assert(IsActive);
             foreach (TestDataset dataset in datasets)
             {
                 foreach (PredictorAndArgs predictor in predictors)
-                    RunOneAllTests(predictor, dataset, extraSettings, extraTag, summary, digitsOfPrecision, parseOption);
+                    RunOneAllTests(predictor, dataset, extraTag, summary, digitsOfPrecision, parseOption);
             }
         }
 
@@ -355,31 +353,31 @@ namespace Microsoft.ML.RunTests
         /// Run TrainTest, CV, and TrainSaveTest for a single predictor on a single dataset.
         /// </summary>
         protected void RunOneAllTests(PredictorAndArgs predictor, TestDataset dataset,
-            string[] extraSettings = null, string extraTag = "", bool summary = false,
-            int digitsOfPrecision = DigitsOfPrecision, NumberParseOption parseOption = NumberParseOption.Default)
+            string extraTag = "", bool summary = false, int digitsOfPrecision = DigitsOfPrecision, 
+            NumberParseOption parseOption = NumberParseOption.Default)
         {
             Contracts.Assert(IsActive);
-            Run_TrainTest(predictor, dataset, extraSettings, extraTag, summary: summary, digitsOfPrecision: digitsOfPrecision, parseOption: parseOption);
-            Run_CV(predictor, dataset, extraSettings, extraTag, useTest: true, digitsOfPrecision: digitsOfPrecision, parseOption: parseOption);
+            Run_TrainTest(predictor, dataset, extraTag, summary: summary, digitsOfPrecision: digitsOfPrecision, parseOption: parseOption);
+            Run_CV(predictor, dataset, extraTag, useTest: true, digitsOfPrecision: digitsOfPrecision, parseOption: parseOption);
         }
 
         /// <summary>
         /// Run Train for a single predictor on a single dataset.
         /// </summary>
         protected RunContext RunOneTrain(PredictorAndArgs predictor, TestDataset dataset,
-            string[] extraSettings = null, string extraTag = "")
+            string extraTag = "")
         {
             Contracts.Assert(IsActive);
-            return Run_Train(predictor, dataset, extraSettings, extraTag);
+            return Run_Train(predictor, dataset, extraTag);
         }
 
         /// <summary>
         /// Run a train unit test
         /// </summary>
         protected RunContext Run_Train(PredictorAndArgs predictor, TestDataset dataset,
-            string[] extraSettings = null, string extraTag = "")
+            string extraTag = "")
         {
-            RunContext ctx = new RunContext(this, Cmd.Train, predictor, dataset, extraSettings, extraTag);
+            RunContext ctx = new RunContext(this, Cmd.Train, predictor, dataset, extraTag);
             Run(ctx);
             return ctx;
         }
@@ -388,11 +386,11 @@ namespace Microsoft.ML.RunTests
         /// Run a train-test unit test
         /// </summary>
         protected void Run_TrainTest(PredictorAndArgs predictor, TestDataset dataset,
-            string[] extraSettings = null, string extraTag = "", bool expectFailure = false, bool summary = false,
+            string extraTag = "", bool expectFailure = false, bool summary = false,
             bool saveAsIni = false, int digitsOfPrecision = DigitsOfPrecision,
              NumberParseOption parseOption = NumberParseOption.Default)
         {
-            RunContext ctx = new RunContext(this, Cmd.TrainTest, predictor, dataset, extraSettings, extraTag, expectFailure: expectFailure, summary: summary, saveAsIni: saveAsIni);
+            RunContext ctx = new RunContext(this, Cmd.TrainTest, predictor, dataset, extraTag, expectFailure: expectFailure, summary: summary, saveAsIni: saveAsIni);
             Run(ctx, digitsOfPrecision, parseOption);
         }
 
@@ -403,23 +401,23 @@ namespace Microsoft.ML.RunTests
         /// after loading the model
         /// </summary>
         protected void Run_TrainSaveTest(PredictorAndArgs predictor, TestDataset dataset,
-            string[] extraSettings = null, string extraTag = "")
+            string extraTag = "")
         {
             // Train and save the model.
-            RunContext trainCtx = new RunContext(this, Cmd.Train, predictor, dataset, extraSettings, extraTag);
+            RunContext trainCtx = new RunContext(this, Cmd.Train, predictor, dataset, extraTag);
             Run(trainCtx);
             // Load the model and test.
-            RunContext testCtx = new RunContext(this, Cmd.Test, predictor, dataset, extraSettings, extraTag,
+            RunContext testCtx = new RunContext(this, Cmd.Test, predictor, dataset, extraTag,
                 modelOverride: trainCtx.ModelPath());
             Run(testCtx);
         }
 
         protected void Run_Test(PredictorAndArgs predictor, TestDataset dataset, string modelPath,
-            string[] extraSettings = null, string extraTag = "")
+            string extraTag = "")
         {
             OutputPath path = new OutputPath(modelPath);
             RunContext testCtx = new RunContext(this, Cmd.Test, predictor, dataset,
-                extraSettings, extraTag, modelOverride: path);
+                extraTag, modelOverride: path);
             Run(testCtx);
         }
 
@@ -428,8 +426,8 @@ namespace Microsoft.ML.RunTests
         /// <paramref name="useTest"/> is set.
         /// </summary>
         protected void Run_CV(PredictorAndArgs predictor, TestDataset dataset,
-            string[] extraSettings = null, string extraTag = "", bool useTest = false,
-            int digitsOfPrecision = DigitsOfPrecision, NumberParseOption parseOption = NumberParseOption.Default)
+            string extraTag = "", bool useTest = false, int digitsOfPrecision = DigitsOfPrecision, 
+            NumberParseOption parseOption = NumberParseOption.Default)
         {
             if (useTest)
             {
@@ -438,7 +436,7 @@ namespace Microsoft.ML.RunTests
                 dataset = dataset.Clone();
                 dataset.trainFilename = dataset.testFilename;
             }
-            RunContext cvCtx = new RunContext(this, Cmd.CV, predictor, dataset, extraSettings, extraTag);
+            RunContext cvCtx = new RunContext(this, Cmd.CV, predictor, dataset, extraTag);
             Run(cvCtx, digitsOfPrecision, parseOption);
         }
 

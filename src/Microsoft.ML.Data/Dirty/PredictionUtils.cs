@@ -49,13 +49,9 @@ namespace Microsoft.ML.Internal.Internallearn
         }
 
         // The extra settings are assumed to be "old style", so we apply the semi-colon hack to them.
-        public static string CombineSettings(string[] settings, string[] extraSettings = null)
+        public static string CombineSettings(string[] settings)
         {
-            if (Utils.Size(extraSettings) == 0)
-                return CmdParser.CombineSettings(settings);
-            if (Utils.Size(settings) == 0)
-                return CmdParser.CombineSettings(SplitOnSemis(extraSettings));
-            return CmdParser.CombineSettings(settings) + " " + CmdParser.CombineSettings(SplitOnSemis(extraSettings));
+            return CmdParser.CombineSettings(settings);
         }
 
         private static char[] _dontSplitChars = new char[] { ' ', '=', '{', '}', '\t' };

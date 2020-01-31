@@ -297,7 +297,7 @@ namespace Microsoft.ML.RunTests
         {
             var binaryPredictors = new[] { TestLearners.logisticRegression };
             var binaryClassificationDatasets = new[] { TestDatasets.breastCancer };
-            RunAllTests(binaryPredictors, binaryClassificationDatasets, new[] { "eval=BinaryClassifier{threshold=0.95 useRawScore=-}" }, "withThreshold", digitsOfPrecision: 3);
+            RunAllTests(binaryPredictors, binaryClassificationDatasets, digitsOfPrecision: 3);
             Done();
         }
 
@@ -373,7 +373,7 @@ namespace Microsoft.ML.RunTests
                 string prName = "prcurve-breast-cancer-prcurve.txt";
                 string prPath = DeleteOutputPath(dir, prName);
                 string eval = $"eval=Binary{{pr={{{prPath} }}}}";
-                Run_TrainTest(learner, data, new[] { eval });
+                Run_TrainTest(learner, data);
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) // PR curves are only generated on Windows.
                     CheckEqualityNormalized(dir, prName);
                 Run_CV(learner, data);
@@ -1107,7 +1107,7 @@ namespace Microsoft.ML.RunTests
             // case where the number of actual leaves is less than the number of maximum leaves per tree.
             RunMTAThread(() =>
             {
-                Run_TrainTest(TestLearners.FastTreeUnderbuiltRegressor, TestDatasets.housing, null, "Underbuilt");
+                Run_TrainTest(TestLearners.FastTreeUnderbuiltRegressor, TestDatasets.housing, "Underbuilt");
             });
             Done();
         }
@@ -1583,7 +1583,7 @@ namespace Microsoft.ML.RunTests
         public void DefaultCalibratorPerceptronTest()
         {
             var datasets = GetDatasetsForCalibratorTest();
-            RunAllTests(new[] { TestLearners.perceptronDefault }, datasets, new string[] { "cali={}" }, "nocalibration");
+            RunAllTests(new[] { TestLearners.perceptronDefault }, datasets, "nocalibration");
             Done();
         }
 
@@ -1595,7 +1595,7 @@ namespace Microsoft.ML.RunTests
         public void PAVCalibratorPerceptronTest()
         {
             var datasets = GetDatasetsForCalibratorTest();
-            RunAllTests(new[] { TestLearners.perceptronDefault }, datasets, new[] { "cali=PAV" }, "PAVcalibration");
+            RunAllTests(new[] { TestLearners.perceptronDefault }, datasets, "PAVcalibration");
             Done();
         }
 
@@ -1607,7 +1607,7 @@ namespace Microsoft.ML.RunTests
         public void RandomCalibratorPerceptronTest()
         {
             var datasets = GetDatasetsForCalibratorTest();
-            RunAllTests(new[] { TestLearners.perceptronDefault }, datasets, new string[] { "numcali=200" }, "calibrateRandom");
+            RunAllTests(new[] { TestLearners.perceptronDefault }, datasets, "calibrateRandom");
             Done();
         }
 
@@ -1619,7 +1619,7 @@ namespace Microsoft.ML.RunTests
         public void NoCalibratorLinearSvmTest()
         {
             var datasets = GetDatasetsForCalibratorTest();
-            RunAllTests(new[] { TestLearners.linearSVM }, datasets, new string[] { "cali={}" }, "nocalibration", digitsOfPrecision: 6);
+            RunAllTests(new[] { TestLearners.linearSVM }, datasets, "nocalibration", digitsOfPrecision: 6);
             Done();
         }
 
@@ -1631,7 +1631,7 @@ namespace Microsoft.ML.RunTests
         public void PAVCalibratorLinearSvmTest()
         {
             var datasets = GetDatasetsForCalibratorTest();
-            RunAllTests(new[] { TestLearners.linearSVM }, datasets, new string[] { "cali=PAV" }, "PAVcalibration", digitsOfPrecision: 5);
+            RunAllTests(new[] { TestLearners.linearSVM }, datasets, "PAVcalibration", digitsOfPrecision: 5);
             Done();
         }
 
@@ -1651,7 +1651,7 @@ namespace Microsoft.ML.RunTests
                 string prName = "prcurve-breast-cancer-weighted-prcurve.txt";
                 string prPath = DeleteOutputPath(dir, prName);
                 string eval = string.Format("eval=Binary{{pr={{{0}}}}}", prPath);
-                Run_TrainTest(learner, data, new[] { eval });
+                Run_TrainTest(learner, data);
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) // PR curves are only generated on Windows.
                     CheckEqualityNormalized(dir, prName);
                 Run_CV(learner, data);
@@ -1731,7 +1731,7 @@ input Data [8];
 hidden H [20] from Data all;
 output Out [2] from H all;
 ");
-            RunOneTrain(TestLearners.NnBinCustom(path), TestDatasets.breastCancer, null, "InputMismatch");
+            RunOneTrain(TestLearners.NnBinCustom(path), TestDatasets.breastCancer, "InputMismatch");
 
             // The baseline should show an output mismatch message.
             path = DeleteOutputPath(TestLearners.NnBinDefault.Trainer.Kind, "BcOutputMismatch.nn");
@@ -1741,7 +1741,7 @@ input Data [9];
 hidden H [20] from Data all;
 output Out [5] from H all;
 ");
-            RunOneTrain(TestLearners.NnBinCustom(path), TestDatasets.breastCancer, null, "OutputMismatch");
+            RunOneTrain(TestLearners.NnBinCustom(path), TestDatasets.breastCancer, "OutputMismatch");
 
             // The data matches the .nn, but the .nn is multi-class, not binary,
             // so BinaryNeuralNetwork.Validate should throw.
@@ -1752,7 +1752,7 @@ input Data [4];
 hidden H [20] from Data all;
 output Out [3] from H all;
 ");
-            RunOneTrain(TestLearners.NnBinCustom(path), TestDatasets.iris, null, "NonBinData");
+            RunOneTrain(TestLearners.NnBinCustom(path), TestDatasets.iris, "NonBinData");
 
             Done();
         }
@@ -2214,7 +2214,7 @@ output Out [3] from H all;
         {
             // This one does CV as well as TrainTest.
             var pa = new PredictorAndArgs(new SubComponent("WeightedEnsemble", "nm=20  tp=-"), "WE-Default");
-            RunOneAllTests(pa, TestDatasets.breastCancer, new[] { "loader=Text{col=Label:BL:0 col=Features:R4:1-9}" }, digitsOfPrecision: 5, parseOption: NumberParseOption.UseSingle);
+            RunOneAllTests(pa, TestDatasets.breastCancer, digitsOfPrecision: 5, parseOption: NumberParseOption.UseSingle);
             Done();
         }
 
@@ -2222,7 +2222,7 @@ output Out [3] from H all;
         public void EnsemblesBaseLearnerTest()
         {
             var pa = new PredictorAndArgs(new SubComponent("WeightedEnsemble", "bp=AvgPer nm=3 tp=-"), "WE-AvgPer");
-            Run_TrainTest(pa, TestDatasets.breastCancer, new[] { "loader=Text{col=Label:BL:0 col=Features:R4:1-9}" }, digitsOfPrecision: 5, parseOption: NumberParseOption.UseSingle);
+            Run_TrainTest(pa, TestDatasets.breastCancer, digitsOfPrecision: 5, parseOption: NumberParseOption.UseSingle);
             Done();
         }
 
@@ -2230,7 +2230,7 @@ output Out [3] from H all;
         public void EnsemblesHeterogeneousTest()
         {
             var pa = new PredictorAndArgs(new SubComponent("WeightedEnsemble", "bp=svm bp=ap nm=20 tp=-"), "WE-Hetero");
-            Run_TrainTest(pa, TestDatasets.breastCancer, new[] { "loader=Text{col=Label:BL:0 col=Features:R4:1-9}" }, digitsOfPrecision: 5, parseOption: NumberParseOption.UseSingle);
+            Run_TrainTest(pa, TestDatasets.breastCancer, digitsOfPrecision: 5, parseOption: NumberParseOption.UseSingle);
             Done();
         }
 
@@ -2238,7 +2238,7 @@ output Out [3] from H all;
         public void EnsemblesVotingCombinerTest()
         {
             var pa = new PredictorAndArgs(new SubComponent("WeightedEnsemble", "nm=20 oc=Voting tp=-"), "WE-Voting");
-            Run_TrainTest(pa, TestDatasets.breastCancer, new[] { "loader=Text{col=Label:BL:0 col=Features:R4:1-9}" }, digitsOfPrecision: 6, parseOption: NumberParseOption.UseSingle);
+            Run_TrainTest(pa, TestDatasets.breastCancer, digitsOfPrecision: 6, parseOption: NumberParseOption.UseSingle);
             Done();
         }
 
@@ -2246,7 +2246,7 @@ output Out [3] from H all;
         public void EnsemblesStackingCombinerTest()
         {
             var pa = new PredictorAndArgs(new SubComponent("WeightedEnsemble", "nm=5 oc=Stacking{bp=ap} tp=-"), "WE-StackingAP");
-            Run_TrainTest(pa, TestDatasets.breastCancer, new[] { "loader=Text{col=Label:BL:0 col=Features:R4:1-9}" }, digitsOfPrecision: 5, parseOption: NumberParseOption.UseSingle);
+            Run_TrainTest(pa, TestDatasets.breastCancer, digitsOfPrecision: 5, parseOption: NumberParseOption.UseSingle);
             Done();
         }
 
@@ -2254,7 +2254,7 @@ output Out [3] from H all;
         public void EnsemblesAveragerCombinerTest()
         {
             var pa = new PredictorAndArgs(new SubComponent("WeightedEnsemble", "nm=20 oc=Average tp=-"), "WE-Average");
-            Run_TrainTest(pa, TestDatasets.breastCancer, new[] { "loader=Text{col=Label:BL:0 col=Features:R4:1-9}" }, digitsOfPrecision: 6, parseOption: NumberParseOption.UseSingle);
+            Run_TrainTest(pa, TestDatasets.breastCancer, digitsOfPrecision: 6, parseOption: NumberParseOption.UseSingle);
             Done();
         }
 
@@ -2262,7 +2262,7 @@ output Out [3] from H all;
         public void EnsemblesBestPerformanceSelectorTest()
         {
             var pa = new PredictorAndArgs(new SubComponent("WeightedEnsemble", "nm=20 pt=BestPerformanceSelector tp=-"), "WE-BestPerf");
-            Run_TrainTest(pa, TestDatasets.breastCancer, new[] { "loader=Text{col=Label:BL:0 col=Features:R4:1-9}" }, digitsOfPrecision: 4, parseOption: NumberParseOption.UseSingle);
+            Run_TrainTest(pa, TestDatasets.breastCancer, digitsOfPrecision: 4, parseOption: NumberParseOption.UseSingle);
             Done();
         }
 
@@ -2270,7 +2270,7 @@ output Out [3] from H all;
         public void EnsemblesBestDiverseSelectorTest()
         {
             var pa = new PredictorAndArgs(new SubComponent("WeightedEnsemble", "nm=20 pt=BestDiverseSelector tp=-"), "WE-Diverse");
-            Run_TrainTest(pa, TestDatasets.breastCancer, new[] { "loader=Text{col=Label:BL:0 col=Features:R4:1-9}" }, digitsOfPrecision: 6, parseOption: NumberParseOption.UseSingle);
+            Run_TrainTest(pa, TestDatasets.breastCancer, digitsOfPrecision: 6, parseOption: NumberParseOption.UseSingle);
             Done();
         }
 
@@ -2278,7 +2278,7 @@ output Out [3] from H all;
         public void EnsemblesRandomPartitionInstanceSelectorTest()
         {
             var pa = new PredictorAndArgs(new SubComponent("WeightedEnsemble", "nm=5 st=RandomPartitionSelector tp=-"), "WE-RandomPartition");
-            Run_TrainTest(pa, TestDatasets.breastCancer, new[] { "loader=Text{col=Label:BL:0 col=Features:R4:1-9}" }, digitsOfPrecision: 4, parseOption: NumberParseOption.UseSingle);
+            Run_TrainTest(pa, TestDatasets.breastCancer, digitsOfPrecision: 4, parseOption: NumberParseOption.UseSingle);
             Done();
         }
 
@@ -2286,7 +2286,7 @@ output Out [3] from H all;
         public void EnsemblesAllDataSetSelectorTest()
         {
             var pa = new PredictorAndArgs(new SubComponent("WeightedEnsemble", "nm=20 st=AllInstanceSelector tp=-"), "WE-All");
-            Run_TrainTest(pa, TestDatasets.breastCancer, new[] { "loader=Text{col=Label:BL:0 col=Features:R4:1-9}" }, digitsOfPrecision: 6, parseOption: NumberParseOption.UseSingle);
+            Run_TrainTest(pa, TestDatasets.breastCancer, digitsOfPrecision: 6, parseOption: NumberParseOption.UseSingle);
             Done();
         }
 
@@ -2294,7 +2294,7 @@ output Out [3] from H all;
         public void EnsemblesRandomSubSpaceSelectorTest()
         {
             var pa = new PredictorAndArgs(new SubComponent("WeightedEnsemble", "nm=20 st=AllInstanceSelector{fs=RandomFeatureSelector} tp=-"), "WE-RandomFeature");
-            Run_TrainTest(pa, TestDatasets.breastCancer, new[] { "loader=Text{col=Label:BL:0 col=Features:R4:1-9}" }, digitsOfPrecision: 5, parseOption: NumberParseOption.UseSingle);
+            Run_TrainTest(pa, TestDatasets.breastCancer, digitsOfPrecision: 5, parseOption: NumberParseOption.UseSingle);
             Done();
         }
 

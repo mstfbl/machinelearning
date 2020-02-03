@@ -297,7 +297,7 @@ namespace Microsoft.ML.RunTests
         {
             var binaryPredictors = new[] { TestLearners.logisticRegression };
             var binaryClassificationDatasets = new[] { TestDatasets.breastCancer };
-            RunAllTests(binaryPredictors, binaryClassificationDatasets, digitsOfPrecision: 3);
+            RunAllTests(binaryPredictors, binaryClassificationDatasets, "withThreshold", digitsOfPrecision: 3);
             Done();
         }
 

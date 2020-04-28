@@ -72,10 +72,11 @@ namespace Microsoft.ML.RunTests
         protected const string ProgressLogLine = "--- Progress log ---";
 
         // Full paths to the baseline directories.
-        private string _baselineCommonDir;
-        private string _baselineBuildStringDir;
+        private string _baselineDir;
         private IEnumerable<string> _baselineConfigDirs;
+        private IEnumerable<string> _baselineBuildConfigDirs;
         private string _usedSpecificBaselineConfig;
+        private string _usedSpecificBuildConfig;
 
         // The writer to write to test log files.
         protected TestLogger TestLogger;
@@ -94,9 +95,9 @@ namespace Microsoft.ML.RunTests
             string baselineRootDir = Path.Combine(RootDir, TestDir, "BaselineOutput");
             Contracts.Check(Directory.Exists(baselineRootDir));
 
-            _baselineCommonDir = Path.Combine(baselineRootDir, "Common");
-            _baselineBuildStringDir = Path.Combine(baselineRootDir, BuildString);
+            _baselineDir = baselineRootDir;
             _baselineConfigDirs = GetConfigurationDirs();
+            _baselineBuildConfigDirs = GetBuildConfigurationDirs();
 
             string logDir = Path.Combine(OutDir, _logRootRelPath);
             Directory.CreateDirectory(logDir);
@@ -148,7 +149,21 @@ namespace Microsoft.ML.RunTests
             if (AppDomain.CurrentDomain.GetData("FX_PRODUCT_VERSION") != null)
                 configurationDirs.Add("netcoreapp31");
 
+            configurationDirs.Add("");
             return configurationDirs;
+        }
+
+        private IEnumerable<string> GetBuildConfigurationDirs()
+        {
+            // Similar to the logic of GetConfigurationDirs(), use a list of strings to return different build configurations
+            // and test through the list from most specific to lease specific build configuration, and use the first file found.
+            var buildConfigurationDirs = new List<string>();
+            if (String.Equals(Mode, "Debug"))
+                buildConfigurationDirs.Add("SingleDebug");
+            else
+                buildConfigurationDirs.Add("SingleRelease");
+            buildConfigurationDirs.Add("Common");
+            return buildConfigurationDirs;
         }
 
         private void LogTestOutput(object sender, LoggingEventArgs e)
@@ -169,10 +184,17 @@ namespace Microsoft.ML.RunTests
                 _normal ? "completed normally" : "aborted",
                 IsPassing ? "passed" : "failed");
 
+            // Logs if a baseline specific to the configuration of a build used in testing
             if (_usedSpecificBaselineConfig != null)
             {
                 Log(String.Format("Test {0} is using {1} configuration specific baselines.",
                     TestName, _usedSpecificBaselineConfig));
+            }
+            // Logs if a baseline specific to SingleDebug or SingleRelease is used in testing
+            if (_usedSpecificBuildConfig != null)
+            {
+                Log(String.Format("Test {0} is using baselines specific to {1} mode.",
+                    TestName, _usedSpecificBuildConfig));
             }
 
             if (!_normal)
@@ -259,36 +281,24 @@ namespace Microsoft.ML.RunTests
             Contracts.Assert(IsActive);
             subDir = subDir ?? string.Empty;
 
-            string baselinePath;
+            string baselinePath = "";
 
-            // first check if a platform specific baseline exists
+            // Iterate through the list of possible configurations, starting from
+            // most specific to lease specific paths.
             foreach (var baselineConfigDir in _baselineConfigDirs)
             {
-                baselinePath = Path.GetFullPath(Path.Combine(_baselineCommonDir, subDir, baselineConfigDir, name));
-                if (File.Exists(baselinePath))
+                foreach (var baselineBuildConfigDir in _baselineBuildConfigDirs)
                 {
-                    _usedSpecificBaselineConfig = baselineConfigDir;
-                    return baselinePath;
+                    baselinePath = Path.GetFullPath(Path.Combine(_baselineDir, baselineBuildConfigDir, subDir, baselineConfigDir, name));
+                    if (File.Exists(baselinePath))
+                    {
+                        _usedSpecificBaselineConfig = baselineConfigDir != "" ? baselineConfigDir : _usedSpecificBaselineConfig;
+                        _usedSpecificBuildConfig =  baselineBuildConfigDir != "Common" ? baselineBuildConfigDir : _usedSpecificBuildConfig;
+                        break;
+                    }
                 }
             }
-
-            // then check the common folder without a platform dir, and use it if it exists
-            baselinePath = Path.GetFullPath(Path.Combine(_baselineCommonDir, subDir, name));
-            if (File.Exists(baselinePath))
-                return baselinePath;
-
-            // check again for a platform specific dir
-            foreach (var baselineConfigDir in _baselineConfigDirs)
-            {
-                baselinePath = Path.GetFullPath(Path.Combine(_baselineBuildStringDir, subDir, baselineConfigDir, name));
-                if (File.Exists(baselinePath))
-                {
-                    _usedSpecificBaselineConfig = baselineConfigDir;
-                    return baselinePath;
-                }
-            }
-
-            return Path.GetFullPath(Path.Combine(_baselineBuildStringDir, subDir, name));
+            return baselinePath;
         }
 
         // These are used to normalize output.

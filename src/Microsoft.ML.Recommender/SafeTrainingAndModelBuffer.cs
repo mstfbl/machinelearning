@@ -334,10 +334,16 @@ namespace Microsoft.ML.Recommender.Internal
                 ch.Info("Training {0} by {1} problem on {2} examples",
                     prob.M, prob.N, prob.Nnz);
 
+                Console.WriteLine("Training {0} by {1} problem on {2} examples",
+                    prob.M, prob.N, prob.Nnz);
+                foreach (MFNode n in nodes)
+                    Console.WriteLine($@" Ori vals: {n.R}, {n.U}, {n.V}");
                 fixed (MFParameter* pParam = &_mfParam)
                 {
                     _pMFModel = MFTrain(&prob, pParam);
                 }
+                foreach (MFNode n in nodes)
+                    Console.WriteLine($@"New vals: {n.R}, {n.U}, {n.V}");
             }
         }
 

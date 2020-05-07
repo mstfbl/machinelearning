@@ -101,6 +101,10 @@ namespace Microsoft.ML.Trainers.Recommender
             buffer.Get(out NumberOfRows, out NumberOfColumns, out ApproximationRank, out var leftFactorMatrix, out var rightFactorMatrix);
             _leftFactorMatrix = leftFactorMatrix;
             _rightFactorMatrix = rightFactorMatrix;
+            Console.WriteLine("Left matrix");
+            Console.WriteLine("[{0}]", string.Join(", ", _leftFactorMatrix));
+            Console.WriteLine("Right matrix");
+            Console.WriteLine("[{0}]", string.Join(", ", _rightFactorMatrix));
             _host.Assert(NumberOfColumns == matrixColumnIndexType.GetCountAsInt32(_host));
             _host.Assert(NumberOfRows == matrixRowIndexType.GetCountAsInt32(_host));
             _host.Assert(_leftFactorMatrix.Length == NumberOfRows * ApproximationRank);

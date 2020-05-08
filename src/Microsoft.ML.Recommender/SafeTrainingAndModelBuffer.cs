@@ -236,20 +236,24 @@ namespace Microsoft.ML.Recommender.Internal
 
         ~SafeTrainingAndModelBuffer()
         {
+            Console.WriteLine("FINALIZER CALLED");
             Dispose(false);
         }
 
         public void Dispose()
         {
+            Console.WriteLine("DISPOSE CALLED! private void Dispose()");
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         private unsafe void Dispose(bool disposing)
         {
+            Console.WriteLine(@$"DISPOSE CALLED! private unsafe void Dispose(bool disposing = {disposing})");
             // Free unmanaged resources.
             if (_pMFModel != null)
             {
+                Console.WriteLine("IN DISPOSE, _pMFModel was not null!");
                 MFDestroyModel(ref _pMFModel);
                 _host.Assert(_pMFModel == null);
             }
@@ -317,6 +321,7 @@ namespace Microsoft.ML.Recommender.Internal
         {
             if (_pMFModel != null)
             {
+                Console.WriteLine("_pMFModel WASN'T NULL WHEN IT WAS SUPPOSED TO - LINE 324");
                 MFDestroyModel(ref _pMFModel);
                 _host.Assert(_pMFModel == null);
             }
@@ -334,16 +339,23 @@ namespace Microsoft.ML.Recommender.Internal
                 ch.Info("Training {0} by {1} problem on {2} examples",
                     prob.M, prob.N, prob.Nnz);
 
-                Console.WriteLine("Training {0} by {1} problem on {2} examples",
-                    prob.M, prob.N, prob.Nnz);
-                foreach (MFNode n in nodes)
-                    Console.WriteLine($@" Ori vals: {n.R}, {n.U}, {n.V}");
+                Console.WriteLine("Before Training {0} by {1} problem on {2} examples, pointer node: {3}, {4}, {5}",
+                    prob.M, prob.N, prob.Nnz, prob.R->R, prob.R->U, prob.R->V);
+                foreach (MFNode node in nodes)
+                    Console.WriteLine($@" Ori vals: {node.R}, {node.U}, {node.V}");
+                Console.WriteLine(@$"Info on _mfParam: Threads={_mfParam.NrThreads}");
                 fixed (MFParameter* pParam = &_mfParam)
                 {
                     _pMFModel = MFTrain(&prob, pParam);
                 }
-                foreach (MFNode n in nodes)
-                    Console.WriteLine($@"New vals: {n.R}, {n.U}, {n.V}");
+                Get(out int m, out int n, out int k, out float[] p, out float[] q);
+                Console.WriteLine($@"_mfParam values: {m}, {n}, {k}");
+                Console.WriteLine("_mfParam p: [{0}]", String.Join(", ", p));
+                Console.WriteLine("_mfParam q: [{0}]", String.Join(", ", q));
+                foreach (MFNode node in nodes)
+                    Console.WriteLine($@"New vals: {node.R}, {node.U}, {node.V}");
+                Console.WriteLine("After Training {0} by {1} problem on {2} examples, pointer node: {3}, {4}, {5}",
+                    prob.M, prob.N, prob.Nnz, prob.R->R, prob.R->U, prob.R->V);
             }
         }
 

@@ -54,7 +54,7 @@ namespace Microsoft.ML.Tests.TrainerEstimators
         }
 
         //[MatrixFactorizationFact]
-        [Theory, TestCategory("RunSpecificTest"), IterationData(1)]
+        [Theory, TestCategory("RunSpecificTest"), IterationData(5)]
         public void MatrixFactorizationSimpleTrainAndPredict(int iterations)
         {
             var mlContext = new MLContext(seed: 1);
@@ -126,7 +126,7 @@ namespace Microsoft.ML.Tests.TrainerEstimators
             // Windows tolerance is set at 1e-7, and Linux tolerance is set at 1e-5
             double windowsTolerance = Math.Pow(10, -7);
             double linuxTolerance = Math.Pow(10, -5);
-            double macTolerance = Math.Pow(10, -3);
+            double macTolerance = Math.Pow(10, -5);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 // Linux case
@@ -137,7 +137,7 @@ namespace Microsoft.ML.Tests.TrainerEstimators
             {
                 // The Mac case is just broken. Should be fixed later. Re-enable when done.
                 // Mac case
-                var expectedMacL2Error = 0.61192207960271; // Mac baseline
+                var expectedMacL2Error = 0.593218453126428; // Mac baseline
                 Console.WriteLine(String.Format("MatrixFactorizationSimpleTrainAndPredict Iteration : {0} Calculated MSE: {1}", iterations, metrices.MeanSquaredError));
                 Assert.InRange(metrices.MeanSquaredError, expectedMacL2Error - macTolerance, expectedMacL2Error + macTolerance);
             }
@@ -147,8 +147,6 @@ namespace Microsoft.ML.Tests.TrainerEstimators
                 var expectedWindowsL2Error = 0.60226203382884; // Windows baseline
                 Assert.InRange(metrices.MeanSquaredError, expectedWindowsL2Error - windowsTolerance, expectedWindowsL2Error + windowsTolerance);
             }
-
-            var modelWithValidation = pipeline.Fit(data, testData);
         }
 
         private TextLoader.Options GetLoaderArgs(string labelColumnName, string matrixColumnIndexColumnName, string matrixRowIndexColumnName)

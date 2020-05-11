@@ -137,14 +137,14 @@ namespace Microsoft.ML.Tests.TrainerEstimators
             {
                 // The Mac case is just broken. Should be fixed later. Re-enable when done.
                 // Mac case
-                var expectedMacL2Error = 0.593218453126428; // Mac baseline
+                var expectedMacL2Error = 0.57845844733209; // Mac baseline
                 Console.WriteLine(String.Format("MatrixFactorizationSimpleTrainAndPredict Iteration : {0} Calculated MSE: {1}", iterations, metrices.MeanSquaredError));
                 Assert.InRange(metrices.MeanSquaredError, expectedMacL2Error - macTolerance, expectedMacL2Error + macTolerance);
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 // Windows case
-                var expectedWindowsL2Error = 0.60226203382884; // Windows baseline
+                var expectedWindowsL2Error = 0.571337282657623; // Windows baseline
                 Assert.InRange(metrices.MeanSquaredError, expectedWindowsL2Error - windowsTolerance, expectedWindowsL2Error + windowsTolerance);
             }
         }
